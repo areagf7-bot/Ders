@@ -7,11 +7,8 @@ PASS=${DASHBOARD_PASS:-"admin123"}
 echo "Configuring Hermes for user: $USER"
 mkdir -p /root/.hermes
 
-# پیدا کردن دایرکتوری اصلی نصب هرمس (معمولاً در این مسیر نصب می‌شود)
-HERMES_DIR=$(dirname $(which hermes))/../lib/node_modules/hermes-agent 2>/dev/null || echo "/root/.hermes"
-
-# تولید هش پسورد با رفتن به مسیر اصلی برنامه
-HASH=$(cd $HERMES_DIR && python3 -c "from plugins.dashboard_auth.basic import hash_password; print(hash_password('${PASS}'))")
+# تولید هش پسورد استاندارد با استفاده از bcrypt در پایتون
+HASH=$(python3 -c "import bcrypt; print(bcrypt.hashpw(b'${PASS}', bcrypt.gensalt()).decode('utf-8'))")
 
 # ساخت فایل کانفیگ امنیتی هرمس
 cat <<EOF > /root/.hermes/config.yaml
