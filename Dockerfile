@@ -1,14 +1,18 @@
-# استفاده از سیستم‌عامل لینوکس با نود جی‌اس نصب شده
+# استفاده از سیستم‌عامل لینوکس
 FROM node:18-bullseye
 
-# نصب پیش‌نیازها
-RUN apt-get update && apt-get upgrade -y && apt-get install -y curl bash
+# نصب پیش‌نیازها و پایتون برای اجرای اسکریپت امنیتی
+RUN apt-get update && apt-get install -y --fix-missing curl bash python3 python3-pip
 
 # دانلود و نصب Hermes Agent
 RUN curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
 
-# تنظیم مسیر سیستم برای شناختن دستور hermes
+# تنظیم مسیر سیستم
 ENV PATH="/root/.hermes/bin:${PATH}"
 
-# اجرای داشبورد روی پورتی که Railway بتواند آن را اکسپوز کند
-CMD ["hermes", "dashboard", "--host", "0.0.0.0", "--port", "12000"]
+# کپی کردن فایل اسکریپت به داخل سرور و دادن دسترسی اجرا به آن
+COPY start.sh /root/start.sh
+RUN chmod +x /root/start.sh
+
+# اجرای اسکریپت هنگام روشن شدن کانتینر
+CMD ["/root/start.sh"]
